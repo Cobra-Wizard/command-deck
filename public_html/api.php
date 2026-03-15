@@ -187,6 +187,9 @@ function getPostData(): array {
     }
     $tags = array_values(array_filter(array_map('trim', $rawTags), 'strlen'));
 
+    $parentId = $data['parent_id'] ?? null;
+    if ($parentId !== null) $parentId = (int)$parentId ?: null;
+
     return [
         'id'          => 0,
         'name'        => strip_tags(trim($data['name'] ?? '')),
@@ -197,6 +200,7 @@ function getPostData(): array {
         'color'       => preg_match('/^#[0-9a-fA-F]{6}$/', $data['color'] ?? '')
                             ? $data['color']
                             : '#3b82f6',
+        'parent_id'   => $parentId,
     ];
 }
 

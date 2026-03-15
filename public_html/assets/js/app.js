@@ -11,11 +11,13 @@ const API = 'api.php';
 let resources  = [];
 let statuses   = {};
 let editingId  = null;
+let viewMode   = 'grid';  // 'grid' (datagrid table) or 'cards'
 
 // --- Boot ---
 document.addEventListener('DOMContentLoaded', () => {
     setupTabs();
     setupSearch();
+    setupViewToggle();
     loadResources();
 });
 
@@ -68,10 +70,10 @@ async function loadResources() {
 }
 
 function renderDashboard() {
-    const grid  = document.getElementById('grid');
-    const empty = document.getElementById('empty');
-    const query = document.getElementById('search').value.toLowerCase();
-    const cat   = document.getElementById('category-filter').value;
+    const container = document.getElementById('grid');
+    const empty     = document.getElementById('empty');
+    const query     = document.getElementById('search').value.toLowerCase();
+    const cat       = document.getElementById('category-filter').value;
 
     let list = resources;
 
@@ -87,21 +89,131 @@ function renderDashboard() {
         list = list.filter(r => r.category === cat);
     }
 
-    // Sort by category then name
-    list.sort((a, b) => {
-        const c = a.category.localeCompare(b.category);
-        return c !== 0 ? c : a.name.localeCompare(b.name);
-    });
-
     if (list.length === 0) {
-        grid.innerHTML = '';
+        container.innerHTML = '';
+        container.className = '';
         empty.style.display = 'block';
         return;
     }
 
     empty.style.display = 'none';
-    grid.innerHTML = list.map(buildCard).join('');
+
+    if (viewMode === 'cards') {
+        list.sort((a, b) => {
+            const c = a.category.localeCompare(b.category);
+            return c !== 0 ? c : a.name.localeCompare(b.name);
+        });
+        container.className = 'grid';
+        container.innerHTML = list.map(buildCard).join('');
+    } else {
+        container.className = 'datagrid-wrap';
+        container.innerHTML = buildDatagrid(list);
+    }
 }
+
+// =============================================================
+//  Hierarchy helpers
+// =============================================================
+
+/** Build a tree: top-level items + children grouped under parents */
+function buildTree(list) {
+    const byId   = new Map(list.map(r => [r.id, r]));
+    const allById = new Map(resources.map(r => [r.id, r]));
+    const roots  = [];
+    const childMap = new Map(); // parent_id => [children]
+
+    for (const r of list) {
+        const pid = r.parent_id;
+        if (pid && allById.has(pid)) {
+            if (!childMap.has(pid)) childMap.set(pid, []);
+            childMap.get(pid).push(r);
+        } else {
+            roots.push(r);
+        }
+    }
+
+    // Sort roots by name, children by name
+    roots.sort((a, b) => a.name.localeCompare(b.name));
+    for (const [, children] of childMap) {
+        children.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return { roots, childMap };
+}
+
+/** Get the parent name for a resource */
+function parentName(r) {
+    if (!r.parent_id) return '';
+    const p = resources.find(x => x.id === r.parent_id);
+    return p ? p.name : '';
+}
+
+// =============================================================
+//  Datagrid view (default)
+// =============================================================
+
+function buildDatagrid(list) {
+    const { roots, childMap } = buildTree(list);
+
+    let html = '<table class="datagrid"><thead><tr>' +
+        '<th class="dg-status"></th>' +
+        '<th>Name</th>' +
+        '<th>URL</th>' +
+        '<th>Category</th>' +
+        '<th>Description</th>' +
+        '<th></th>' +
+        '</tr></thead><tbody>';
+
+    for (const r of roots) {
+        const children = childMap.get(r.id) || [];
+        const hasChildren = children.length > 0;
+        html += buildDatagridRow(r, 0, hasChildren);
+        for (const c of children) {
+            const grandchildren = childMap.get(c.id) || [];
+            html += buildDatagridRow(c, 1, grandchildren.length > 0);
+            for (const gc of grandchildren) {
+                html += buildDatagridRow(gc, 2, false);
+            }
+        }
+    }
+
+    html += '</tbody></table>';
+    return html;
+}
+
+function buildDatagridRow(r, depth, hasChildren) {
+    const st       = statuses[r.id] || 'checking';
+    const dotClass = st === 'online' ? 'online' : st === 'offline' ? 'offline' : 'checking';
+    const shortUrl = (r.url || '').replace(/^https?:\/\//, '');
+    const safeUrl  = /^(https?|smb|ftp):\/\//i.test(r.url || '') ? r.url : '#';
+    const indent   = depth * 1.5;
+    const hostCls  = depth === 0 && hasChildren ? ' dg-host' : '';
+    const childCls = depth > 0 ? ' dg-child' : '';
+    const depthCls = depth > 1 ? ' dg-depth2' : '';
+    const treeMark = depth > 0 ? '<span class="dg-tree">└</span>' : '';
+
+    return '<tr class="dg-row' + hostCls + childCls + depthCls + '">' +
+        '<td class="dg-status"><span class="dot ' + dotClass + '" title="' + esc(st) + '"></span></td>' +
+        '<td class="dg-name" style="padding-left:' + (0.75 + indent) + 'rem">' +
+            treeMark +
+            '<span class="dg-initial" style="background:' + esc(r.color || '#3b82f6') + '">' +
+                (r.name || '?').charAt(0).toUpperCase() + '</span>' +
+            '<span>' + esc(r.name) + '</span>' +
+        '</td>' +
+        '<td class="dg-url"><a href="' + esc(safeUrl) + '" target="_blank" rel="noopener">' + esc(shortUrl) + '</a></td>' +
+        '<td><span class="badge cat">' + esc(r.category) + '</span></td>' +
+        '<td class="dg-desc">' + esc(r.description || '') + '</td>' +
+        '<td class="dg-actions">' +
+            '<button class="btn-sm" onclick="openEditModal(' + r.id + ')">Edit</button>' +
+            '<button class="btn-sm btn-danger" onclick="handleDelete(' + r.id + ')">Del</button>' +
+            '<a class="btn-sm btn-open" href="' + esc(safeUrl) + '" target="_blank" rel="noopener">Open&rarr;</a>' +
+        '</td>' +
+    '</tr>';
+}
+
+// =============================================================
+//  Card view
+// =============================================================
 
 function buildCard(r) {
     const st       = statuses[r.id] || 'checking';
@@ -181,6 +293,7 @@ function openAddModal(prefill) {
     document.getElementById('f-tags').value  = p.tags || '';
     document.getElementById('f-desc').value  = p.description || '';
     document.getElementById('f-color').value = p.color || '#3b82f6';
+    populateParentDropdown(null, null);
     document.getElementById('modal').style.display = 'flex';
     document.getElementById('f-name').focus();
 }
@@ -197,8 +310,26 @@ function openEditModal(id) {
     document.getElementById('f-tags').value  = (r.tags || []).join(', ');
     document.getElementById('f-desc').value  = r.description || '';
     document.getElementById('f-color').value = r.color || '#3b82f6';
+    populateParentDropdown(r.parent_id, id);
     document.getElementById('modal').style.display = 'flex';
     document.getElementById('f-name').focus();
+}
+
+/** Fill the "Runs on" dropdown, excluding self and own children */
+function populateParentDropdown(selectedId, excludeId) {
+    const sel = document.getElementById('f-parent');
+    sel.innerHTML = '<option value="">(None — top level)</option>';
+    const sorted = [...resources].sort((a, b) => a.name.localeCompare(b.name));
+    for (const r of sorted) {
+        if (r.id === excludeId) continue;
+        if (excludeId && r.parent_id === excludeId) continue;
+        const opt = document.createElement('option');
+        opt.value = r.id;
+        opt.textContent = r.name;
+        if (r.parent_id) opt.textContent = '  └ ' + r.name;
+        if (selectedId && r.id === selectedId) opt.selected = true;
+        sel.appendChild(opt);
+    }
 }
 
 function closeModal() {
@@ -208,6 +339,7 @@ function closeModal() {
 
 async function handleSave(e) {
     e.preventDefault();
+    const parentVal = document.getElementById('f-parent').value;
     const data = {
         name:        document.getElementById('f-name').value.trim(),
         url:         document.getElementById('f-url').value.trim(),
@@ -215,6 +347,7 @@ async function handleSave(e) {
         tags:        document.getElementById('f-tags').value,
         description: document.getElementById('f-desc').value.trim(),
         color:       document.getElementById('f-color').value,
+        parent_id:   parentVal ? parseInt(parentVal) : null,
     };
 
     if (!data.name || !data.url) {
@@ -382,6 +515,17 @@ function setupSearch() {
         timer = setTimeout(renderDashboard, 200);
     });
     document.getElementById('category-filter').addEventListener('change', renderDashboard);
+}
+
+function setupViewToggle() {
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            viewMode = btn.dataset.view;
+            renderDashboard();
+        });
+    });
 }
 
 

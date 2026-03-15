@@ -344,6 +344,108 @@ header h1 { font-size: 1.25rem; font-weight: 600; }
     color: var(--text-dim);
 }
 
+/* ---- View toggle ---- */
+.view-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+.view-btn {
+    padding: 0.35rem 0.65rem;
+    background: var(--surface);
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.view-btn + .view-btn { border-left: 1px solid var(--border); }
+.view-btn:hover { color: var(--text); }
+.view-btn.active {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* ---- Datagrid ---- */
+.datagrid-wrap { padding: 0 1.5rem 2rem; }
+.datagrid {
+    width: 100%;
+    border-collapse: collapse;
+}
+.datagrid th,
+.datagrid td {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+.datagrid th {
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+}
+.datagrid th.dg-status { width: 30px; }
+
+.dg-row:hover { background: rgba(59, 130, 246, 0.04); }
+.dg-host { font-weight: 600; }
+.dg-host td { border-bottom: 1px solid #3a3d4a; }
+.dg-child { color: var(--text-dim); font-weight: 400; }
+.dg-child:hover { color: var(--text); }
+.dg-depth2 { font-size: 0.84rem; }
+
+.dg-name {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 180px;
+}
+.dg-tree {
+    color: var(--border);
+    font-size: 0.9rem;
+    margin-right: 0.1rem;
+}
+.dg-initial {
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: #111;
+    flex-shrink: 0;
+}
+.dg-url { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.dg-url a {
+    color: var(--accent);
+    text-decoration: none;
+}
+.dg-url a:hover { text-decoration: underline; }
+.dg-desc {
+    color: var(--text-dim);
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.82rem;
+}
+.dg-actions {
+    display: flex;
+    gap: 0.3rem;
+    justify-content: flex-end;
+}
+
 /* ---- Modal ---- */
 .modal {
     position: fixed;

@@ -2,7 +2,7 @@
 session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax']);
 session_start();
 require_once __DIR__ . '/config.php';
-$assetVersion = '20260315d';
+$assetVersion = '20260315e';
 
 // Logout
 if (isset($_GET['logout'])) {
@@ -88,6 +88,10 @@ $loggedIn = !empty($_SESSION['authenticated']);
                 <option value="<?= $cat ?>"><?= $cat ?></option>
             <?php endforeach; ?>
         </select>
+        <div class="view-toggle">
+            <button class="view-btn active" data-view="grid" title="Table view">&#9776;</button>
+            <button class="view-btn" data-view="cards" title="Card view">&#9638;</button>
+        </div>
         <button class="btn btn-primary" onclick="openAddModal()">+ Add</button>
     </div>
     <div id="grid" class="grid"></div>
@@ -137,6 +141,11 @@ $loggedIn = !empty($_SESSION['authenticated']);
             </label>
             <label>Color
                 <input type="color" name="color" id="f-color" value="#3b82f6">
+            </label>
+            <label>Runs on
+                <select name="parent_id" id="f-parent">
+                    <option value="">(None — top level)</option>
+                </select>
             </label>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Save</button>
