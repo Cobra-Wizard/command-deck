@@ -273,9 +273,17 @@ function scanSubnet(string $subnet, array $ports, int $timeoutMs, int $batchSize
                 if ($active) curl_multi_select($multi, 0.01);
             } while ($active && $status === CURLM_OK);
 
-            // Collect results
+            // Drain completed-handle results (curl_errno is unreliable in multi mode)
+            $succeeded = [];
+            while ($info = curl_multi_info_read($multi)) {
+                if ($info['msg'] === CURLMSG_DONE && $info['result'] === CURLE_OK) {
+                    $succeeded[spl_object_id($info['handle'])] = true;
+                }
+            }
+
+            // Collect results — only record truly-open ports
             foreach ($handles as $key => $ch) {
-                if (curl_errno($ch) === 0) {
+                if (isset($succeeded[spl_object_id($ch)])) {
                     [$ip, $port] = explode(':', $key);
                     $p = (int)$port;
                     if (!isset($found[$ip])) {

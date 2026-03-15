@@ -2,7 +2,7 @@
 session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax']);
 session_start();
 require_once __DIR__ . '/config.php';
-$assetVersion = '20260315b';
+$assetVersion = '20260315c';
 
 // Logout
 if (isset($_GET['logout'])) {

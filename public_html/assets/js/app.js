@@ -283,11 +283,37 @@ async function startScan() {
         return;
     }
 
+    // Store scan data for sorting
+    window._scanData = resp.data;
+    window._scanSortAsc = true;
+    renderScanTable();
+}
+
+/** Parse IP into a numeric value for sorting */
+function ipToNum(ip) {
+    const p = ip.split('.');
+    return ((+p[0]) << 24) + ((+p[1]) << 16) + ((+p[2]) << 8) + (+p[3]);
+}
+
+/** Render (or re-render) the scan results table */
+function renderScanTable() {
+    const data    = window._scanData || [];
+    const asc     = window._scanSortAsc;
+    const results = document.getElementById('scan-results');
+
+    const sorted = [...data].sort((a, b) => {
+        const diff = ipToNum(a.ip) - ipToNum(b.ip);
+        return asc ? diff : -diff;
+    });
+
+    const arrow = asc ? ' &#9650;' : ' &#9660;';
+
     let html = '<table class="scan-table"><thead><tr>' +
-        '<th>IP Address</th><th>Open Ports</th><th>Services</th><th></th>' +
+        '<th class="sortable" onclick="toggleScanSort()">IP' + arrow + '</th>' +
+        '<th>Open Ports</th><th>Services</th><th></th>' +
         '</tr></thead><tbody>';
 
-    for (const d of resp.data) {
+    for (const d of sorted) {
         const ports = d.ports.join(', ');
         const svcs  = (d.services || []).join(', ');
         let action;
@@ -324,6 +350,12 @@ function buildScanUrl(ip, ports) {
 
 function addFromScan(ip, url) {
     openAddModal({ url: url, description: 'Discovered at ' + ip });
+}
+
+/** Toggle IP column sort direction */
+function toggleScanSort() {
+    window._scanSortAsc = !window._scanSortAsc;
+    renderScanTable();
 }
 
 

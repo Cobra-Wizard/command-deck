@@ -440,6 +440,13 @@ header h1 { font-size: 1.25rem; font-weight: 600; }
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
+.scan-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+.scan-table th.sortable:hover {
+    color: var(--text);
+}
 .scan-known {
     color: var(--text-dim);
     font-style: italic;
