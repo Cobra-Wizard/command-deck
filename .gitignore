@@ -1,0 +1,22 @@
+# --- User config (contains passwords, IPs, personal branding) ---
+public_html/config.php
+data/resources.json
+
+# --- HestiaCP generated ---
+logs/
+stats/
+cgi-bin/
+document_errors/
+private/
+
+# --- v1 backup ---
+public_html/_v1_backup/
+
+# --- OS / editor junk ---
+Thumbs.db
+.DS_Store
+desktop.ini
+*.swp
+*.swo
+*~
+.vscode/

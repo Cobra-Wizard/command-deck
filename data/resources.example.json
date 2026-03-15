@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "name": "Proxmox",
+        "url": "https://192.168.1.100:8006",
+        "category": "Infrastructure",
+        "tags": ["virtualization", "hypervisor"],
+        "description": "Proxmox VE management UI",
+        "color": "#ff9f6e"
+    },
+    {
+        "id": 2,
+        "name": "Home Assistant",
+        "url": "http://192.168.1.50:8123",
+        "category": "Home",
+        "tags": ["automation", "iot"],
+        "description": "Smart home control",
+        "color": "#8db6ff"
+    },
+    {
+        "id": 3,
+        "name": "Plex",
+        "url": "http://192.168.1.100:32400/web",
+        "category": "Media",
+        "tags": ["streaming", "media"],
+        "description": "Media server",
+        "color": "#ffb86b"
+    }
+]
