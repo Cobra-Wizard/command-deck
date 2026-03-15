@@ -156,7 +156,6 @@ function buildDatagrid(list) {
     const { roots, childMap } = buildTree(list);
 
     let html = '<table class="datagrid"><thead><tr>' +
-        '<th class="dg-status"></th>' +
         '<th>Name</th>' +
         '<th>IP</th>' +
         '<th>URL</th>' +
@@ -214,9 +213,9 @@ function buildDatagridRow(r, depth, hasChildren) {
     const treeMark = depth > 0 ? '<span class="dg-tree">└</span>' : '';
 
     return '<tr class="dg-row' + hostCls + childCls + depthCls + '">' +
-        '<td class="dg-status"><span class="dot ' + dotClass + '" title="' + esc(st) + '"></span></td>' +
         '<td style="padding-left:' + (0.75 + indent) + 'rem">' +
             '<div class="dg-name">' +
+            '<span class="dot ' + dotClass + '" title="' + esc(st) + '"></span>' +
             treeMark +
             '<span class="dg-initial" style="background:' + esc(r.color || '#3b82f6') + '">' +
                 (r.name || '?').charAt(0).toUpperCase() + '</span>' +
