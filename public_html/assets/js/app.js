@@ -215,11 +215,13 @@ function buildDatagridRow(r, depth, hasChildren) {
 
     return '<tr class="dg-row' + hostCls + childCls + depthCls + '">' +
         '<td class="dg-status"><span class="dot ' + dotClass + '" title="' + esc(st) + '"></span></td>' +
-        '<td class="dg-name" style="padding-left:' + (0.75 + indent) + 'rem">' +
+        '<td style="padding-left:' + (0.75 + indent) + 'rem">' +
+            '<div class="dg-name">' +
             treeMark +
             '<span class="dg-initial" style="background:' + esc(r.color || '#3b82f6') + '">' +
                 (r.name || '?').charAt(0).toUpperCase() + '</span>' +
             '<span>' + esc(r.name) + '</span>' +
+            '</div>' +
         '</td>' +
         '<td class="dg-ip">' + esc(ip) + '</td>' +
         '<td class="dg-url">' + (shortUrl ? '<a href="' + esc(safeUrl) + '" target="_blank" rel="noopener">' + esc(shortUrl) + '</a>' : '') + '</td>' +
