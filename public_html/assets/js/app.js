@@ -210,13 +210,11 @@ function buildDatagridRow(r, depth, hasChildren) {
     const hostCls  = depth === 0 && hasChildren ? ' dg-host' : '';
     const childCls = depth > 0 ? ' dg-child' : '';
     const depthCls = depth > 1 ? ' dg-depth2' : '';
-    const treeMark = depth > 0 ? '<span class="dg-tree">└</span>' : '';
 
     return '<tr class="dg-row' + hostCls + childCls + depthCls + '">' +
         '<td style="padding-left:' + (0.75 + indent) + 'rem">' +
             '<div class="dg-name">' +
             '<span class="dot ' + dotClass + '" title="' + esc(st) + '"></span>' +
-            treeMark +
             '<span class="dg-initial" style="background:' + esc(r.color || '#3b82f6') + '">' +
                 (r.name || '?').charAt(0).toUpperCase() + '</span>' +
             '<span>' + esc(r.name) + '</span>' +
