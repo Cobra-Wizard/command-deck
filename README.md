@@ -44,14 +44,15 @@ A self-hosted homelab dashboard with password protection, live status checks, an
 
 4. **Create your resource list** from the example:
    ```bash
-   cp data/resources.example.json data/resources.json
+   mkdir -p public_html/.data
+   cp data/resources.example.json public_html/.data/resources.json
    ```
 
 5. **Set permissions** so PHP can read/write the data file:
    ```bash
-   chown www-data:www-data data/ data/resources.json
-   chmod 755 data/
-   chmod 644 data/resources.json
+   chown -R www-data:www-data public_html/.data/
+   chmod 755 public_html/.data/
+   chmod 644 public_html/.data/resources.json
    ```
 
 6. **Point your web server** at `public_html/` as the document root.
@@ -65,9 +66,10 @@ command-deck/
 ├── .gitignore
 ├── README.md
 ├── data/
-│   ├── resources.example.json   ← Example data (tracked)
-│   └── resources.json           ← YOUR data (git-ignored)
+│   └── resources.example.json   ← Example data (tracked)
 └── public_html/                 ← Web root
+    ├── .data/
+    │   └── resources.json       ← YOUR data (git-ignored, created at runtime)
     ├── config.example.php       ← Example config (tracked)
     ├── config.php               ← YOUR config (git-ignored)
     ├── index.php                ← Login gate + dashboard HTML
@@ -98,7 +100,7 @@ Three ways:
 
 1. **Dashboard UI** — Click "+ Add", fill out the form
 2. **Network Scanner** — Go to the Scanner tab, scan your subnet, click "+ Add" on discovered devices
-3. **Edit JSON** — Open `data/resources.json` directly (useful for bulk imports)
+3. **Edit JSON** — Open `public_html/.data/resources.json` directly (useful for bulk imports)
 
 ## License
 

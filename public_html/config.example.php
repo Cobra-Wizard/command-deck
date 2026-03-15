@@ -17,8 +17,8 @@ define('AUTH_PASSWORD', 'changeme');
 define('SESSION_TIMEOUT', 28800);
 
 // --- Data Storage ---
-// Stored one level above public_html so it's not web-accessible
-define('DATA_FILE', dirname(__DIR__) . '/data/resources.json');
+// Stored in .data/ inside public_html — nginx blocks dotfile directories
+define('DATA_FILE', __DIR__ . '/.data/resources.json');
 
 // --- Network Scanner ---
 define('DEFAULT_SUBNET', '192.168.1');

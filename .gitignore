@@ -1,5 +1,6 @@
 # --- User config (contains passwords, IPs, personal branding) ---
 public_html/config.php
+public_html/.data/
 data/resources.json
 
 # --- HestiaCP generated ---
@@ -11,6 +12,7 @@ private/
 
 # --- v1 backup ---
 public_html/_v1_backup/
+public_html/debug_path.php
 
 # --- OS / editor junk ---
 Thumbs.db

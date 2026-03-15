@@ -146,12 +146,19 @@ function loadResources(): array {
 /** Save resources to JSON file */
 function saveResources(array $resources): void {
     $dir = dirname(DATA_FILE);
-    if (!is_dir($dir)) mkdir($dir, 0755, true);
-    file_put_contents(
+    if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
+        http_response_code(500);
+        die(json_encode(['status' => 'error', 'message' => 'Cannot create data directory']));
+    }
+    $written = file_put_contents(
         DATA_FILE,
         json_encode($resources, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
         LOCK_EX
     );
+    if ($written === false) {
+        http_response_code(500);
+        die(json_encode(['status' => 'error', 'message' => 'Cannot write data file']));
+    }
 }
 
 /** Parse and sanitise the POST body */
