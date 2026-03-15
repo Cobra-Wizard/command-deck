@@ -158,6 +158,7 @@ function buildDatagrid(list) {
     let html = '<table class="datagrid"><thead><tr>' +
         '<th class="dg-status"></th>' +
         '<th>Name</th>' +
+        '<th>IP</th>' +
         '<th>URL</th>' +
         '<th>Category</th>' +
         '<th>Description</th>' +
@@ -181,11 +182,31 @@ function buildDatagrid(list) {
     return html;
 }
 
+/** Extract host/IP from a URL string */
+function extractHost(url) {
+    if (!url) return '';
+    try {
+        const u = new URL(url);
+        return u.hostname;
+    } catch (_) {
+        return '';
+    }
+}
+
+/** True if string looks like an IPv4 address */
+function isIPAddress(str) {
+    return /^\d{1,3}(\.\d{1,3}){3}$/.test(str);
+}
+
 function buildDatagridRow(r, depth, hasChildren) {
     const st       = statuses[r.id] || 'checking';
     const dotClass = st === 'online' ? 'online' : st === 'offline' ? 'offline' : 'checking';
-    const shortUrl = (r.url || '').replace(/^https?:\/\//, '');
     const safeUrl  = /^(https?|smb|ftp):\/\//i.test(r.url || '') ? r.url : '#';
+    const host     = extractHost(r.url);
+    const ip       = host;  // show whatever hostname/IP was parsed
+    // Only show URL text when we have a proper hostname (not just an IP)
+    const showUrl  = host && !isIPAddress(host);
+    const shortUrl = showUrl ? (r.url || '').replace(/^https?:\/\//, '') : '';
     const indent   = depth * 1.5;
     const hostCls  = depth === 0 && hasChildren ? ' dg-host' : '';
     const childCls = depth > 0 ? ' dg-child' : '';
@@ -200,7 +221,8 @@ function buildDatagridRow(r, depth, hasChildren) {
                 (r.name || '?').charAt(0).toUpperCase() + '</span>' +
             '<span>' + esc(r.name) + '</span>' +
         '</td>' +
-        '<td class="dg-url"><a href="' + esc(safeUrl) + '" target="_blank" rel="noopener">' + esc(shortUrl) + '</a></td>' +
+        '<td class="dg-ip">' + esc(ip) + '</td>' +
+        '<td class="dg-url">' + (shortUrl ? '<a href="' + esc(safeUrl) + '" target="_blank" rel="noopener">' + esc(shortUrl) + '</a>' : '') + '</td>' +
         '<td><span class="badge cat">' + esc(r.category) + '</span></td>' +
         '<td class="dg-desc">' + esc(r.description || '') + '</td>' +
         '<td class="dg-actions">' +

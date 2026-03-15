@@ -427,6 +427,7 @@ header h1 { font-size: 1.25rem; font-weight: 600; }
     color: #111;
     flex-shrink: 0;
 }
+.dg-ip { color: var(--text-dim); font-family: 'SF Mono', 'Consolas', monospace; font-size: 0.82rem; }
 .dg-url { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
 .dg-url a {
     color: var(--accent);
